@@ -1,0 +1,38 @@
+王栋-Oracle:
+他就是要这个效果，最亮的仔
+
+陈勇飞Oracle:
+
+
+高健-oracle:
+SELECT obj#
+  FROM obj$ AS OF TIMESTAMP TO_TIMESTAMP('2020-07-28 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
+ WHERE NAME = 'ASWI_SX_MU_INV_MOVE_RQST_PKG';
+ 
+-- 81288
+-- 81289
+-- 有两个值，一个是包头，一个是包体；然后再用如下的sql查询有正确值时间点的数据
+
+SELECT source
+  FROM source$ AS OF TIMESTAMP TO_TIMESTAMP('2020-07-28 12:00:00', 'YYYY-MM-DD HH24:MI:SS')
+ where obj# = 81289;
+
+1：查V$DB_OBJECT_CACHE
+
+SELECT * FROM V$DB_OBJECT_CACHE WHERE name='CUX_OE_ORDER_RPT_PKG' AND LOCKS!='0';
+
+注意：CUX_OE_ORDER_RPT_PKG 为存储过程的名称。
+
+发现 locks＝2
+
+2：按对象查出sid的值
+
+select /*+ rule*/  SID from V$ACCESS WHERE object='CUX_OE_ORDER_RPT_PKG';
+
+注意：CUX_OE_ORDER_RPT_PKG 为存储过程的名称。
+
+3：查sid,serial#
+
+SELECT SID,SERIAL#,PADDR FROM V$SESSION WHERE SID='刚才查到的SID';
+
+4：alter system kill session 'sid值,serial#值' immediate;
